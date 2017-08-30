@@ -3,7 +3,7 @@ use v5.24;
 package Dist::Zilla::Plugin::LocalHTML::Pod2HTML;
 # ABSTRACT: Pod::Simple::HTML wrapper to generate local links for project modules.
 
-our $VERSION = 'v0.0.2';
+our $VERSION = 'v0.1.901';
 
 use File::Spec;
 use Data::Dumper;

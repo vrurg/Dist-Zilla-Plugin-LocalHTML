@@ -4,7 +4,7 @@ package Dist::Zilla::Plugin::LocalHTML;
 
 # ABSTRACT: create CSS-rich HTML pages from the POD-aware files for local browsing
 
-our $VERSION = 'v0.0.2';
+our $VERSION = 'v0.1.901';
 
 =head1 SYNOPSIS
 
