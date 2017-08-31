@@ -1,6 +1,7 @@
 use v5.24;
 
 package Dist::Zilla::Plugin::LocalHTML::Pod2HTML;
+
 # ABSTRACT: Pod::Simple::HTML wrapper to generate local links for project modules.
 
 our $VERSION = 'v0.1.901';
@@ -19,6 +20,7 @@ extends qw<Pod::Simple::HTML>;
 Points back to the parent plugin object.
 
 =cut
+
 has callerPlugin => (
     is      => 'ro',
     isa     => 'Dist::Zilla::Plugin::LocalHTML',
@@ -30,6 +32,7 @@ has callerPlugin => (
 Contains regexp for matching local modules.
 
 =cut
+
 has prefixRx => (
     is      => 'ro',
     lazy    => 1,
@@ -41,22 +44,30 @@ has prefixRx => (
 Inherited from L<Pod::Simple::HTML>
 
 =cut
+
 around do_pod_link => sub {
     my $orig   = shift;
     my $this   = shift;
     my ($link) = @_;
 
-    $this->log_debug( "do_pod_link:", Dumper($link) );
-
-    if ( $link->tagname eq 'L' and $link->attr('type') eq 'pod' ) {
-        my $lpRx = $this->prefixRx;
-        my $to   = "" . $link->attr('to');
-        if ( $to =~ /^$lpRx/n ) {
-            my $toFile = File::Spec->catfile(split /::/, $to);
-            my $ref = $this->callerPlugin->base_filename($toFile);
-            $this->log_debug("Resulting link:", $ref);
-            return $ref;
+    if (   ( $link->tagname eq 'L' )
+        && ( $link->attr('type') eq 'pod' ) )
+    {
+        my $ref;
+        if ( $link->attr('to') ) {
+            my $lpRx = $this->prefixRx;
+            my $to   = "" . $link->attr('to');
+            if ( $to =~ /^$lpRx/n ) {
+                my $toFile = File::Spec->catfile( split /::/, $to );
+                $ref = $this->callerPlugin->base_filename($toFile);
+                $this->log_debug( "Resulting link:", $ref );
+            }
         }
+        elsif ( $link->attr('section') ) {
+            my $section = "" . $link->attr('section');
+            $ref = "#" . $this->section_escape($section);
+        }
+        return $ref if defined $ref;
     }
 };
 
@@ -66,6 +77,7 @@ Builder for C<prefixRx> attribute. Generates regexp from caller plugin
 C<local_prefix> attribute.
 
 =cut
+
 sub init_prefixRx {
     my $this = shift;
     return
