@@ -5,6 +5,10 @@ package DZPL::Test::_UPLEV;
 
 Linkback: L<DZPL::Test::Module::_DUMMY>
 
+=head2 A subsec
+
+Subsection
+
 =cut
 
 1;
