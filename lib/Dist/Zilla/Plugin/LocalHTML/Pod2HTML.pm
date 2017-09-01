@@ -53,22 +53,24 @@ around do_pod_link => sub {
     if (   ( $link->tagname eq 'L' )
         && ( $link->attr('type') eq 'pod' ) )
     {
-        my $ref;
+        my $ref = "";
         if ( $link->attr('to') ) {
             my $lpRx = $this->prefixRx;
             my $to   = "" . $link->attr('to');
             if ( $to =~ /^$lpRx/n ) {
                 my $toFile = File::Spec->catfile( split /::/, $to );
-                $ref = $this->callerPlugin->base_filename($toFile);
+                $ref .= $this->callerPlugin->base_filename($toFile);
                 $this->log_debug( "Resulting link:", $ref );
             }
         }
-        elsif ( $link->attr('section') ) {
+        if ( $link->attr('section') ) {
             my $section = "" . $link->attr('section');
-            $ref = "#" . $this->section_escape($section);
+            $ref .= "#" . $this->section_escape($section);
         }
-        return $ref if defined $ref;
+        return $ref if $ref;
     }
+    
+    return $orig->($this, @_);
 };
 
 =method C<init_prefixRx>
