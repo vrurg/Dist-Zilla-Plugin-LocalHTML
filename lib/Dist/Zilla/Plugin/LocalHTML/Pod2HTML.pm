@@ -39,11 +39,25 @@ has prefixRx => (
     builder => 'init_prefixRx',
 );
 
+has local_files => (
+    is      => 'ro',
+    lazy    => 1,
+    clearer => 'clear_local_files',
+    builder => 'init_local_files',
+);
+
 =method C<do_pod_link>
 
 Inherited from L<Pod::Simple::HTML>
 
 =cut
+
+sub _mod2file {
+    my $this = shift;
+    my $mod  = shift;
+    my $file = File::Spec->catfile( split /::/, $mod );
+    return $this->callerPlugin->base_filename($file);
+}
 
 around do_pod_link => sub {
     my $orig   = shift;
@@ -55,22 +69,32 @@ around do_pod_link => sub {
     {
         my $ref = "";
         if ( $link->attr('to') ) {
-            my $lpRx = $this->prefixRx;
-            my $to   = "" . $link->attr('to');
-            if ( $to =~ /^$lpRx/n ) {
-                my $toFile = File::Spec->catfile( split /::/, $to );
-                $ref .= $this->callerPlugin->base_filename($toFile);
-                $this->log_debug( "Resulting link:", $ref );
+            my $lpRx   = $this->prefixRx;
+            my $to     = "" . $link->attr('to');
+            my $toFile = $this->_mod2file($to);
+            if ( ( defined($lpRx) && $to =~ /^$lpRx/n )
+                || $this->local_files->{$toFile} )
+            {
+                # Local link
+                $ref .= $toFile;
+            }
+            else {
+                # External link. Override default generator because
+                # search.cpan.org seems to be down as for now.
+                $ref .= "https://metacpan.org/pod/$to";
             }
         }
         if ( $link->attr('section') ) {
             my $section = "" . $link->attr('section');
             $ref .= "#" . $this->section_escape($section);
         }
-        return $ref if $ref;
+        if ($ref) {
+            $this->log_debug( "Resulting link:", $ref );
+            return $ref;
+        }
     }
-    
-    return $orig->($this, @_);
+
+    return $orig->( $this, @_ );
 };
 
 =method C<init_prefixRx>
@@ -81,9 +105,24 @@ C<local_prefix> attribute.
 =cut
 
 sub init_prefixRx {
+    my $this   = shift;
+    my @pfList = @{ $this->callerPlugin->local_prefix };
+    return @pfList
+      ? "(?<prefix>" . join( "|", @pfList ) . ")"
+      : undef;
+}
+
+sub init_local_files {
     my $this = shift;
-    return
-      "(?<prefix>" . join( "|", @{ $this->callerPlugin->local_prefix } ) . ")";
+
+    my $files = $this->callerPlugin->found_files;
+    my $map   = {};
+
+    foreach my $file (@$files) {
+        $map->{ $this->callerPlugin->base_filename( $file->name ) } = 1
+          if $this->callerPlugin->is_interesting_file($file);
+    }
+    return $map;
 }
 
 1;
