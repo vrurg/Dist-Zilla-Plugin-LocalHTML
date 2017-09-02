@@ -25,13 +25,31 @@ This plugin generates HTML pages from the POD files and puts them into
 the distribution in a separate directory (not as a tree of files but
 flatten). The created HTML pages have the same (or, at least, similar)
 style as the modules' documentation shown at CPAN. They're also suitable for
-local browsing meaning linking between pages is local to the file system..
+local browsing meaning linking between pages is local to the file system meaning
+that pages are browsable without any webserver or posting a module to CPAN.
+This could be especially handy for developers using unicode in their docs as
+sometimes it is not displayed correctly with perldoc – like on macOS systems.
 
 It creates HTML pages from all files in the C<lib> and C<bin>
 directory that contain a POD section and that have C<.pm> or C<.pl>
 extension or that have the word C<perl> in their first line. The
 plugin is run after other plugins that may munge files and create the
 POD sections (such as I<PodWeaver>).
+
+The plugin overrides Pod::Simple::HTML link generation. By distinguishing local
+and remote links it generates either a simple reference to local filesystem, or
+a reference to metacpan.org. Link is conisdered local if there is a corresponding
+file for the original C<<L<>>> Pod tag. For example, of the following to links:
+
+    L<Local::Project::Module>
+    L<Local::Project::NoModule>
+    
+the first one is considered local if there is file
+F<lib/Local/Project/Module.pm>; the second one would get linked to metacpan.org
+if there is no file F<lib/Local/Project/NoModule.pm>.
+
+Link type could additionally be determined by L</local_prefix> configuration
+variable.
 
 =cut
 
@@ -71,7 +89,7 @@ has dir => (
 
 =attr C<local_prefix>
 
-What modules are considered local - i.e. part of the current project. Few
+What modules to consider as local - i.e. part of the current project. Few
 prefixes could be defined. Each one could be a regexp expression. A module
 is considered local if it matches against one of the local prefixes. Note
 that match is done agains the beginning of module name.
