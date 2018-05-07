@@ -37,7 +37,7 @@ POD sections (such as I<PodWeaver>).
 The plugin overrides Pod::Simple::HTML link generation. By distinguishing local
 and remote links it generates either a simple reference to local filesystem, or
 a reference to metacpan.org. Link is conisdered local if there is a corresponding
-file for the original C<<L<>>> Pod tag. For example, of the following to links:
+file for the original C<LE<lt>E<gt>> Pod tag. For example, of the following to links:
 
     L<Local::Project::Module>
     L<Local::Project::NoModule>
