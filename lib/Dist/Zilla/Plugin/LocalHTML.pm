@@ -1,5 +1,3 @@
-use v5.24;
-
 package Dist::Zilla::Plugin::LocalHTML;
 
 # ABSTRACT: create CSS-rich HTML pages from the POD-aware files for local browsing
@@ -233,7 +231,7 @@ sub base_filename {
     $basename =~ s{(\.[^.]*)?$}{}n;
     $path = File::Spec->canonpath($path);
     my @dirs = File::Spec->splitdir($path);
-    shift @dirs if @dirs && $dirs[0] =~ /^(lib|bin|scripts)$/n;
+    shift @dirs if @dirs && $dirs[0] =~ /^(lib|bin|scripts)$/;
     return join( "-", @dirs, "$basename.html" );
 }
 

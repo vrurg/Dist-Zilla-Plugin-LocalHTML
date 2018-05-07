@@ -1,5 +1,3 @@
-use v5.24;
-
 package Dist::Zilla::Plugin::LocalHTML::Pod2HTML;
 
 # ABSTRACT: Pod::Simple::HTML wrapper to generate local links for project modules.
@@ -72,7 +70,11 @@ around do_pod_link => sub {
             my $lpRx   = $this->prefixRx;
             my $to     = "" . $link->attr('to');
             my $toFile = $this->_mod2file($to);
-            if ( ( defined($lpRx) && $to =~ /^$lpRx/n )
+            $this->log_debug("'$to' matches local prefix")
+              if defined($lpRx) && $to =~ /^$lpRx/;
+            $this->log_debug("'$toFile' is in local_files map")
+              if $this->local_files->{$toFile};
+            if ( ( defined($lpRx) && $to =~ /^$lpRx/ )
                 || $this->local_files->{$toFile} )
             {
                 # Local link
