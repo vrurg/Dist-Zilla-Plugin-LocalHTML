@@ -37,6 +37,11 @@ has prefixRx => (
     builder => 'init_prefixRx',
 );
 
+=attr local_files
+
+List of files to build docs for.
+
+=cut
 has local_files => (
     is      => 'ro',
     lazy    => 1,
@@ -114,6 +119,11 @@ sub init_prefixRx {
       : undef;
 }
 
+=method C<init_local_files>
+
+Builder for C<local_files> attribute. Records local files to be processed.
+
+=cut
 sub init_local_files {
     my $this = shift;
 
