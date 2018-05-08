@@ -229,7 +229,7 @@ sub base_filename {
 
     my $file_name = ref($file) ? $file->name : $file;
     my ( $vol, $path, $basename ) = File::Spec->splitpath($file_name);
-    $basename =~ s{(\.[^.]*)?$}{}n;
+    $basename =~ s{(\.[^.]*)?$}{};
     $path = File::Spec->canonpath($path);
     my @dirs = File::Spec->splitdir($path);
     shift @dirs if @dirs && $dirs[0] =~ /^(lib|bin|scripts)$/;
