@@ -1,3 +1,4 @@
+use v5.10;
 package Dist::Zilla::Plugin::LocalHTML::Pod2HTML;
 
 # ABSTRACT: Pod::Simple::HTML wrapper to generate local links for project modules.
